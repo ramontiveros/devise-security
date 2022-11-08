@@ -57,12 +57,16 @@ module DeviseSecurity
         if !devise_controller? &&
            !ignore_password_expire? &&
            !request.format.nil? &&
-           request.format.html?
+           (request.format.html? || request.format.json?)
           Devise.mappings.keys.flatten.any? do |scope|
             if signed_in?(scope) && warden.session(scope)['password_expired'] == true
               if send(:"current_#{scope}").try(:need_change_password?)
                 store_location_for(scope, request.original_fullpath) if request.get?
-                redirect_for_password_change(scope)
+                if request.format.html?
+                  redirect_for_password_change(scope)
+                else
+                  render json: {error: "password_expired"}, status: :unauthorised
+                end
               else
                 warden.session(scope)['password_expired'] = false
               end
