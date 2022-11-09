@@ -65,7 +65,7 @@ module DeviseSecurity
                 if request.format.html?
                   redirect_for_password_change(scope)
                 else
-                  render json: {error: "password_expired"}, status: :unauthorised
+                  render json: {error: "password_expired"}, status: :unauthorized
                 end
               else
                 warden.session(scope)['password_expired'] = false
